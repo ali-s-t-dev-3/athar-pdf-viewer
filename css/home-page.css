@@ -1,0 +1,26 @@
+h1 {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cover {
+    width: 500px;
+    height: 500px;
+    align-items: center;
+    justify-content: center;
+    margin: 100px 50px;
+}
+
+.book-covers {
+    display: flex;
+    justify-content: center;
+    /* align-items: center; */
+    flex-wrap: wrap;
+}

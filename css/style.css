@@ -1,0 +1,32 @@
+.pdf-viewer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.top-bar>div {
+    padding: 5px;
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+}
+
+.content>div>textarea {
+    height: 100%;
+    width: 95%;
+}
+
+.content>div {
+    width: 100%;
+}

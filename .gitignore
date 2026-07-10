@@ -1,0 +1,3 @@
+books/*.pdf
+working-pdf-viewer-reference/
+pdfjs-6.1.200-dist (1)/**/*.map

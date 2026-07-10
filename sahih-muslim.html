@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/b867c96a9c.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:,">
+    <title>PDF Viewer</title>
+</head>
+
+<body>
+    <div class="top-bar">
+        <div>
+            <span class="page-info">
+                Page <span id="page-num"></span> of <span id="page-count"></span>
+            </span>
+        </div>
+        <div>
+            <button class="btn" id="prev-page">
+                <i class="fas fa-arrow-circle-left"></i>
+                Prev Page
+            </button>
+            <button class="btn" id="next-page">
+                Next Page
+                <i class="fas fa-arrow-circle-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="content">
+        <div id="notes-section1">
+            <textarea></textarea>
+        </div>
+        <div class="pdf-viewer">
+            <canvas id="pdf-render"></canvas>
+        </div>
+        <div id="notes-section2">
+            <textarea></textarea>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
