@@ -3,16 +3,20 @@ import * as pdfjsLib from "../pdfjs-6.1.200-dist%20(1)/build/pdf.mjs";
 pdfjsLib.GlobalWorkerOptions.workerSrc =
     new URL("../pdfjs-6.1.200-dist%20(1)/build/pdf.worker.mjs", import.meta.url).href;
 
+const PDF_PART_SIZE = 1000;
+const PDF_PAGE_COUNT = 4513;
+const PDF_PART_URLS = [1, 2, 3, 4, 5].map(part =>
+    new URL(`../books/saheeh-muslim-parts/saheeh-muslim-part-${part}.pdf`, import.meta.url).href
+);
 const IS_LOCAL = ["localhost", "127.0.0.1"].includes(window.location.hostname);
-const url = IS_LOCAL
-    ? "../books/saheeh-muslim.pdf"
-    : "https://aeiijptebzenjhgcntup.supabase.co/storage/v1/object/public/books/saheeh-muslim.pdf";
 const API_BASE_URL = IS_LOCAL
     ? "http://localhost:8080"
     : "https://athar-notes-api-ali-dev.onrender.com";
 
 let pdfDoc = null,
     pageNum = 1,
+    partIndex = 0,
+    partPageNum = 1,
     pageIsRendering = false,
     pageNumIsPending = null;
 
@@ -36,11 +40,10 @@ console.log("main.js reached the fetch");
 
 // Render the page
 
-const renderPage = num => {
+const renderPage = partPage => {
     pageIsRendering = true;
 
-    // Get page 
-    pdfDoc.getPage(num).then(page => {
+    pdfDoc.getPage(partPage).then(page => {
 
 
         // Set scale
@@ -70,11 +73,11 @@ const renderPage = num => {
         });
 
         // Output current page
-        document.querySelector('#page-num').textContent = num;
+        partPageNum = partPage;
+        pageNum = (partIndex * PDF_PART_SIZE) + partPage;
+        document.querySelector('#page-num').textContent = pageNum;
+        displayNotesForPage(pageNum);
     });
-
-    document.querySelector("#page-num").textContent = num;
-    displayNotesForPage(num);
 }
 
 // Check for pages rendering
@@ -88,41 +91,56 @@ const queueRenderPage = num => {
 
 // Show Prev Page
 const showPrevPage = () => {
-    if (pageNum <= 1) {
+    if (!pdfDoc || pageNum <= 1) {
         return;
     }
-    pageNum--;
-    queueRenderPage(pageNum);
+
+    if (partPageNum > 1) {
+        queueRenderPage(partPageNum - 1);
+        return;
+    }
+
+    loadPdfPart(partIndex - 1, PDF_PART_SIZE);
 }
 
 // Show Next Page
 const showNextPage = () => {
-    if (pageNum >= pdfDoc.numPages) {
+    if (!pdfDoc || pageNum >= PDF_PAGE_COUNT) {
         return;
     }
-    pageNum++;
-    queueRenderPage(pageNum);
+
+    if (partPageNum < pdfDoc.numPages) {
+        queueRenderPage(partPageNum + 1);
+        return;
+    }
+
+    loadPdfPart(partIndex + 1, 1);
 }
 
-// Get Document
-pdfjsLib.getDocument({
+const loadPdfPart = (newPartIndex, targetPage) => {
+    pageIsRendering = true;
+    pageNumIsPending = null;
 
-    url,
+    return pdfjsLib.getDocument({
+        url: PDF_PART_URLS[newPartIndex],
+        cMapUrl: new URL("../pdfjs-6.1.200-dist%20(1)/web/cmaps/", import.meta.url).href,
+        cMapPacked: true,
+        standardFontDataUrl: new URL("../pdfjs-6.1.200-dist%20(1)/web/standard_fonts/", import.meta.url).href,
+        wasmUrl: new URL("../pdfjs-6.1.200-dist%20(1)/web/wasm/", import.meta.url).href,
+        iccUrl: new URL("../pdfjs-6.1.200-dist%20(1)/web/iccs/", import.meta.url).href
+    }).promise.then(loadedPdf => {
+        pdfDoc = loadedPdf;
+        partIndex = newPartIndex;
+        pageIsRendering = false;
+        renderPage(targetPage);
+    }).catch(error => {
+        pageIsRendering = false;
+        console.error("Could not load PDF volume:", error);
+    });
+};
 
-    cMapUrl: new URL("../pdfjs-6.1.200-dist%20(1)/web/cmaps/", import.meta.url).href,
-    cMapPacked: true,
-    standardFontDataUrl: new URL("../pdfjs-6.1.200-dist%20(1)/web/standard_fonts/", import.meta.url).href,
-    wasmUrl: new URL("../pdfjs-6.1.200-dist%20(1)/web/wasm/", import.meta.url).href,
-    iccUrl: new URL("../pdfjs-6.1.200-dist%20(1)/web/iccs/", import.meta.url).href
-
-}).promise.then(pdfDoc_ => {
-    pdfDoc = pdfDoc_;
-    console.log(pdfDoc);
-
-    document.querySelector('#page-count').textContent = pdfDoc.numPages;
-
-    renderPage(pageNum);
-});
+document.querySelector('#page-count').textContent = PDF_PAGE_COUNT;
+loadPdfPart(0, 1);
 
 // Button Events
 document.querySelector('#prev-page').addEventListener('click', showPrevPage);
