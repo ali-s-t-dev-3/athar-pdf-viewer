@@ -11,7 +11,7 @@ const PDF_PART_URLS = [1, 2, 3, 4, 5].map(part =>
 const IS_LOCAL = ["localhost", "127.0.0.1"].includes(window.location.hostname);
 const API_BASE_URL = IS_LOCAL
     ? "http://localhost:8080"
-    : "https://athar-notes-api-ali-dev.onrender.com";
+    : "https://athar-notes-api-ali-dev-gzrv.onrender.com";
 
 let pdfDoc = null,
     pageNum = 1,
